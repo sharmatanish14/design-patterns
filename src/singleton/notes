@@ -1,0 +1,117 @@
+1. to create thread safe getInstance
+
+   public synchronized static DateUtil getInstance() {
+        if (dateUtil == null) {
+            dateUtil = new DateUtil();
+        }
+
+        return dateUtil;
+    }
+
+2.
+    public static DateUtil getInstance() {
+        synchronized (DateUtil.class) {
+            if (dateUtil == null) {
+                dateUtil = new DateUtil();
+            }
+        }
+        return dateUtil;
+
+3.
+     also we can mark static variable volatile
+    public static DateUtil getInstance() {
+        if (dateUtil == null) {
+            synchronized (DateUtil.class) {
+                if (dateUtil == null) {
+                    dateUtil = new DateUtil();
+                }
+            }
+        }
+        return dateUtil;
+    }
+
+4. Serialisation and singleton
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+            DateUtil dateUtil1 = DateUtil.getInstance();
+            DateUtil dateUtil2 = DateUtil.getInstance();
+            System.out.println(dateUtil1 == dateUtil2);     // true
+
+            FileOutputStream fileOutputStream = new FileOutputStream("sample1.ser");
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+
+            objectOutputStream.writeObject(dateUtil1);
+
+            FileOutputStream fileOutputStream2 = new FileOutputStream("sample2.ser");
+            ObjectOutputStream objectOutputStream2 = new ObjectOutputStream(fileOutputStream2);
+
+            objectOutputStream.writeObject(dateUtil2);
+
+            FileInputStream fileInputStream1 = new FileInputStream("sample1.ser");
+            ObjectInputStream objectInputStream1 = new ObjectInputStream(fileInputStream1);
+            DateUtil deserialisedObject1 = (DateUtil) objectInputStream1.readObject();
+
+            FileInputStream fileInputStream2 = new FileInputStream("sample1.ser");
+            ObjectInputStream objectInputStream2 = new ObjectInputStream(fileInputStream2);
+            DateUtil deserialisedObject2 = (DateUtil) objectInputStream2.readObject();
+
+            System.out.println(deserialisedObject1 == deserialisedObject2);  // false
+        }
+
+
+5. Fix deserialisation issue
+   ObjectInputStream internally calls readResolve() method, add this method in the singleton class
+
+     public Object readResolve() {
+        return dateUtil;
+    }
+
+6. Stop the cloning of singleton class
+
+    public class DateUtil implements Cloneable {
+
+        private static DateUtil dateUtil;
+
+        private DateUtil() {
+
+        }
+        public static DateUtil getInstance() {
+            if (dateUtil == null) {
+                dateUtil = new DateUtil();
+            }
+
+            return dateUtil;
+        }
+
+        @Override
+        protected Object clone() throws CloneNotSupportedException {
+            throw new CloneNotSupportedException();
+        }
+    }
+
+
+
+7. Breaking singleton pattern using Reflection
+
+public static void main(String[] args) throws Exception {
+
+        DateUtil instance1 = DateUtil.getInstance();
+        DateUtil instance2 = null;
+        Constructor<?>[] declaredConstructors = DateUtil.class.getDeclaredConstructors();
+
+        for (Constructor constructor : declaredConstructors) {
+            constructor.setAccessible(true);
+            instance2 = (DateUtil) constructor.newInstance();
+            break;
+
+        }
+        System.out.println(instance1.hashCode());
+        System.out.println(instance2.hashCode());
+        System.out.println(instance1 == instance2);
+    }
+
+
+8. Enum solution for saving singleton using reflection
+    As enum doesn't have constructor so there is no way to break it using reflection
+
+
+

@@ -1,0 +1,7 @@
+Factory pattern : Hides the object creation process
+
+Example of establish db connection
+    Connection connection= DriverManager.getConnection(String url)
+
+
+

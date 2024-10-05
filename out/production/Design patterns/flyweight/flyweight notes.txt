@@ -1,0 +1,4 @@
+1. fyweight design pattern is used when we need to create a lot of Objects of a class
+2. Less number of objects reduces the memory usage, and it manages to keep us away from errors related to memory like java.lang.OutOfMemoryError.
+
+

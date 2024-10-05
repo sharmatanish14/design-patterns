@@ -1,0 +1,6 @@
+This pattern can add functionality at runtime
+    Classes in the Input Output stream uses the decorator pattern
+
+Decorator pattern lets you dynamically change the behavior of an object at run time by wrapping them in an object of a decorator class.
+
+
